@@ -39,9 +39,9 @@ static int debug_close(struct inode *inode, struct file *file)
 static ssize_t debug_read(struct file *file, char *dst, size_t count, loff_t *f_offset) 
 {
 	struct debug_cdev *debug = (struct debug_cdev *)file->private_data;
-	NUPA_DEBUG("debug_read: count = %ld, offset = %lld \r\n", count, *f_offset);
+	LAB_DEBUG("debug_read: count = %ld, offset = %lld \r\n", count, *f_offset);
 	if(*f_offset + count > debug->buf_size) {
-		NUPA_ERROR("over read debug file\r\n");
+		LAB_ERROR("over read debug file\r\n");
 		return -EINVAL;
 	}
 	*f_offset += count;
@@ -51,9 +51,9 @@ static ssize_t debug_read(struct file *file, char *dst, size_t count, loff_t *f_
 static ssize_t debug_write(struct file *file, const char *src, size_t count, loff_t *f_offset) 
 {
 	struct debug_cdev *debug = (struct debug_cdev *)file->private_data;
-	NUPA_DEBUG("debug_write: count = %ld, offset = %lld \r\n", count, *f_offset);
+	LAB_DEBUG("debug_write: count = %ld, offset = %lld \r\n", count, *f_offset);
 	if(*f_offset + count > debug->buf_size) {
-		NUPA_ERROR("over write debug file\r\n");
+		LAB_ERROR("over write debug file\r\n");
 		return -EINVAL;
 	}
 	*f_offset += count;
@@ -62,41 +62,26 @@ static ssize_t debug_write(struct file *file, const char *src, size_t count, lof
 
 static long debug_ioctl (struct file *file, unsigned int cmd, unsigned long arg)
 {
-	//struct debug_cdev *debug = (struct debug_cdev *)file->private_data;
-	NUPA_DEBUG("debug_ioctl , cmd = %#x, arg = %#lx\r\n", cmd, arg);
+	struct my_data data_from_user = {0, 0};
+	LAB_DEBUG("debug_ioctl , cmd = %#x, arg = %#lx\r\n", cmd, arg);
+	
 	switch(cmd)
 	{
-		case IOCTL_RAW_WRITE:
-			NUPA_DEBUG("debug_ioctl raw write test \r\n");
+		case IOCTL_RAW_WRITE_INT:
+			LAB_DEBUG("debug_ioctl raw write test, arg = %ld \r\n", arg);
+			break;
+		
+		case IOCTL_RAW_WRITE_DATA:
+			LAB_DEBUG("debug_ioctl raw write data test, \r\n");
+			if (copy_from_user(&data_from_user, (void __user *)arg, sizeof(struct my_data)))
+            	return -EFAULT;
+			LAB_DEBUG("field1 = %d, field2 = %d\r\n", data_from_user.field1, data_from_user.field2);
 			break;
 
 		case IOCTL_RAW_READ:
-			NUPA_DEBUG("debug_ioctl raw read test \r\n");
+			LAB_DEBUG("debug_ioctl raw read test \r\n");
 			break;
 
-		case IOCTL_DUMP_MSG_ON:
-			NUPA_DEBUG("debug_ioctl dump msg on\r\n");
-			break;
-
-		case IOCTL_DUMP_MSG_OFF:
-			NUPA_DEBUG("debug_ioctl dump msg off\r\n");
-			break;
-
-		case IOCTL_HACK_CTL_ON:
-			NUPA_DEBUG("debug_ioctl hack control on \r\n");
-			break;
-
-		case IOCTL_HACK_CTL_OFF:
-			NUPA_DEBUG("debug_ioctl hack control on \r\n");
-			break;
-
-		case IOCTL_HOLD_IC_ON:
-			NUPA_DEBUG("debug_ioctl hold ic control on \r\n");
-			break;
-		
-		case IOCTL_HOLD_IC_OFF:
-			NUPA_DEBUG("debug_ioctl hold ic control off \r\n");
-			break;
 
 		default:
 			break;
@@ -112,12 +97,12 @@ static int debug_mmap(struct file *filp, struct vm_area_struct *vma)
 	start = (unsigned long)vma->vm_start;
     size = (unsigned long)(vma->vm_end - vma->vm_start);
 	debug = (struct debug_cdev *)filp->private_data;
-	NUPA_DEBUG("debug_mmap , size = %#lx \r\n", size);
+	LAB_DEBUG("debug_mmap , size = %#lx \r\n", size);
 	if(size >= debug->buf_size) {
 		size = debug->buf_size;
 	}
 	if(remap_pfn_range(vma, start, virt_to_phys(debug->buf) >> PAGE_SHIFT, size, PAGE_SHARED)) {
-		NUPA_ERROR("debug_mmap failed\r\n");
+		LAB_ERROR("debug_mmap failed\r\n");
 		return -1;
 	}
 	return 0;

@@ -1,10 +1,12 @@
-KSRC ?= /lib/modules/$(shell uname -r)/build
-#KSRC ?= /home/ubuntu/workspace/debug_linux5.0_x86
+UTILS_DIR:=utils
+SRC_DIR:=src
 
-obj-m := debug.o
+all :
+	@/bin/mkdir -p build
+	$(MAKE) -C $(SRC_DIR)
+	$(MAKE) -C $(UTILS_DIR)
 
-all:
-	make -C $(KSRC)/ M=$(CURDIR) modules
-
-%:
-	make -C $(KSRC)/ M=$(CURDIR) $@
+clean:
+	$(MAKE) -C $(UTILS_DIR) clean
+	$(MAKE) -C $(SRC_DIR) clean
+	@/bin/rm -rf build
