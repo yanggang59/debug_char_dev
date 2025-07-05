@@ -24,10 +24,11 @@ struct my_data {
 //CMD         31:30       29:16          15:8            7:0
 //meaning     dir         data size      device type     function code
 //bit         2           14             8               8
-#define IOCTL_MAGIC                           ('D')
-#define IOCTL_RAW_WRITE_INT                   _IOW(IOCTL_MAGIC, 1, int)
-#define IOCTL_RAW_WRITE_DATA                  _IOW(IOCTL_MAGIC, 2, struct my_data)
-#define IOCTL_RAW_READ                        _IO(IOCTL_MAGIC, 3)
+#define IOCTL_MAGIC                            ('D')
+#define IOCTL_RAW_WRITE_INT                    _IOW(IOCTL_MAGIC, 1, int)
+#define IOCTL_RAW_WRITE_DATA                   _IOW(IOCTL_MAGIC, 2, struct my_data)
+#define IOCTL_RAW_READ_INT                     _IOR(IOCTL_MAGIC, 3, int)
+#define IOCTL_RAW_READ_DATA                    _IOR(IOCTL_MAGIC, 4, struct my_data)
 
 
 

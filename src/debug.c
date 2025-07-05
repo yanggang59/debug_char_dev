@@ -63,6 +63,8 @@ static ssize_t debug_write(struct file *file, const char *src, size_t count, lof
 static long debug_ioctl (struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct my_data data_from_user = {0, 0};
+	struct my_data data_to_user = {33, 44};
+	int response = 42;
 	LAB_DEBUG("debug_ioctl , cmd = %#x, arg = %#lx\r\n", cmd, arg);
 	
 	switch(cmd)
@@ -78,10 +80,17 @@ static long debug_ioctl (struct file *file, unsigned int cmd, unsigned long arg)
 			LAB_DEBUG("field1 = %d, field2 = %d\r\n", data_from_user.field1, data_from_user.field2);
 			break;
 
-		case IOCTL_RAW_READ:
-			LAB_DEBUG("debug_ioctl raw read test \r\n");
+		case IOCTL_RAW_READ_INT:
+			LAB_DEBUG("debug_ioctl raw read int test \r\n");
+			if (copy_to_user((void __user *)arg, &response, sizeof(response)))
+				return -EFAULT;
 			break;
-
+		
+		case IOCTL_RAW_READ_DATA:
+			LAB_DEBUG("debug_ioctl raw read int test \r\n");
+			if (copy_to_user((void __user *)arg, &data_to_user, sizeof(data_to_user)))
+				return -EFAULT;
+			break;
 
 		default:
 			break;

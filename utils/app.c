@@ -18,22 +18,23 @@ struct my_data {
 //CMD         31:30       29:16          15:8            7:0
 //meaning     dir         data size      device type     function code
 //bit         2           14             8               8
-#define IOCTL_MAGIC                          ('D')
-#define IOCTL_RAW_WRITE_INT                  _IOW(IOCTL_MAGIC, 1, int)
-#define IOCTL_RAW_WRITE_DATA                 _IOW(IOCTL_MAGIC, 2, struct my_data)
-#define IOCTL_RAW_READ                       _IO(IOCTL_MAGIC, 3)
-
+#define IOCTL_MAGIC                           ('D')
+#define IOCTL_RAW_WRITE_INT                   _IOW(IOCTL_MAGIC, 1, int)
+#define IOCTL_RAW_WRITE_DATA                  _IOW(IOCTL_MAGIC, 2, struct my_data)
+#define IOCTL_RAW_READ_INT                    _IOR(IOCTL_MAGIC, 3, int)
+#define IOCTL_RAW_READ_DATA                   _IOR(IOCTL_MAGIC, 4, struct my_data)
 
 
 
 #define DBG_CHAR_DEV                            "/dev/debug"
 
 
-static const char short_options[] = "w:rs";
+static const char short_options[] = "w:rsp";
 static const struct option long_options[] = {
 	{"write", required_argument, NULL, 'w'},
     {"read", no_argument, NULL, 'r' },
     {"write_struct", no_argument, NULL, 's' },
+    {"read_struct", no_argument, NULL, 'p' },
 	{ 0, 0, 0, 0 }
 };
 
@@ -81,6 +82,7 @@ static void debug_ioctl_raw_write_data(void)
 static void debug_ioctl_raw_read(void)
 {
     int fd, ret;
+    int read_val = 0;
     printf("[Info] %s : %d \r\n", __func__, __LINE__);
     fd = open(DBG_CHAR_DEV, O_RDWR);
     if(fd < 0) {
@@ -88,12 +90,34 @@ static void debug_ioctl_raw_read(void)
         exit(-1);
     }
     
-    ret = ioctl(fd, IOCTL_RAW_READ, NULL);
+    ret = ioctl(fd, IOCTL_RAW_READ_INT, &read_val);
     
     if(ret < 0) {
         fprintf(stderr, "ioctl: %s\n", strerror(errno));
         exit(-1);
     }
+    printf("[Info] read_val = %d\r\n", read_val);
+    close(fd);
+}
+
+static void debug_ioctl_raw_read_data(void)
+{
+    int fd, ret;
+    struct my_data data;
+    printf("[Info] %s : %d \r\n", __func__, __LINE__);
+    fd = open(DBG_CHAR_DEV, O_RDWR);
+    if(fd < 0) {
+        fprintf(stderr, "open: %s\n", strerror(errno));
+        exit(-1);
+    }
+    
+    ret = ioctl(fd, IOCTL_RAW_READ_DATA, &data);
+    
+    if(ret < 0) {
+        fprintf(stderr, "ioctl: %s\n", strerror(errno));
+        exit(-1);
+    }
+    printf("[Info] field1 = %d, field2 = %d\r\n", data.field1, data.field2);
     close(fd);
 }
 
@@ -123,6 +147,9 @@ int main(int argc, char** argv)
                 break;
             case 'r': 
                 debug_ioctl_raw_read();
+                break;
+            case 'p': 
+                debug_ioctl_raw_read_data();
                 break;
             default:
                 usage();
