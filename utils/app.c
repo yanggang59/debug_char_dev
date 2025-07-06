@@ -33,8 +33,8 @@ static const char short_options[] = "w:rsp";
 static const struct option long_options[] = {
 	{"write", required_argument, NULL, 'w'},
     {"read", no_argument, NULL, 'r' },
-    {"write_struct", no_argument, NULL, 's' },
-    {"read_struct", no_argument, NULL, 'p' },
+    {"write_data", no_argument, NULL, 's' },
+    {"read_data", no_argument, NULL, 'p' },
 	{ 0, 0, 0, 0 }
 };
 
@@ -123,8 +123,10 @@ static void debug_ioctl_raw_read_data(void)
 
 static void usage(void)
 {
-	printf( "usage: app [--write | -w] \n"
+	printf( "usage: app [--write | -w ] \n"
 		"       [--read | -r \n"
+		"       [--write_data | -s \n"
+		"       [--read_data | -p \n"
     );
 	exit(1);
 }
