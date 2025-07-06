@@ -170,6 +170,7 @@ static int __init debug_init(void)
 		return -ENOMEM;
 	}
 
+	memset(debug->buf, 'X', BUF_LENGTH);
 	// add device to the kernel 
 	if (cdev_add(&debug->cdev, debug->cdevno, 1)) {
 		printk(KERN_ALERT "\n%s: unable to add char device", NAME);

@@ -40,8 +40,19 @@ def read_data():
     fd.close()
     print("[Info] filed1 = " + str(data_in.field1))
     print("[Info] filed2 = " + str(data_in.field2))
+    fd.close()
 
+def dump_mem():
+    return
+
+def mmap_test(length):
+    fd = os.open("/dev/debug", os.O_RDWR | os.O_SYNC)
+    mm = mmap.mmap(fd,  length, flags=mmap.MAP_SHARED, prot=mmap.PROT_WRITE|mmap.PROT_READ, access=mmap.ACCESS_DEFAULT)
+    print(mm[:10])
+    mm.close
+    os.close(fd) 
 
 if __name__ == '__main__':
     write_data(222, 444)
     read_data()
+    mmap_test(4096)

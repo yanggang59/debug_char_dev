@@ -27,16 +27,34 @@ struct my_data {
 
 
 #define DBG_CHAR_DEV                            "/dev/debug"
+#define BUF_LENGTH                      (8 << 12)
 
-
-static const char short_options[] = "w:rsp";
+static const char short_options[] = "w:rspm";
 static const struct option long_options[] = {
 	{"write", required_argument, NULL, 'w'},
     {"read", no_argument, NULL, 'r' },
     {"write_data", no_argument, NULL, 's' },
     {"read_data", no_argument, NULL, 'p' },
+    {"mmap", no_argument, NULL, 'm' },
 	{ 0, 0, 0, 0 }
 };
+
+void dump_buf(char* buf, int len)
+{
+  printf("**************************************************************************************\r\n");
+  printf("     ");
+  for(int i = 0; i < 16; i++) 
+    printf("%4X ", i);
+
+  for(int j = 0; j < len; j++) {
+    if(j % 16 == 0) {
+      printf("\n%4X ", j);
+    }
+    printf("%4X ", buf[j]);
+  }
+
+  printf("\n**************************************************************************************\r\n");
+}
 
 
 static void debug_ioctl_raw_write(int param)
@@ -121,6 +139,34 @@ static void debug_ioctl_raw_read_data(void)
     close(fd);
 }
 
+static void debug_mmap(void)
+{
+    int fd, ret;
+    int read_val = 0;
+    char* m_buf, *l_buf;
+    printf("[Info] %s : %d \r\n", __func__, __LINE__);
+    fd = open(DBG_CHAR_DEV, O_RDWR);
+    if(fd < 0) {
+        fprintf(stderr, "open: %s\n", strerror(errno));
+        exit(-1);
+    }
+
+    m_buf = mmap(NULL, BUF_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (m_buf == (void*) -1) {
+        fprintf(stderr, "mmap: %s\n", strerror(errno));
+        exit(-1);
+    }
+
+    l_buf = (char* )malloc(BUF_LENGTH);
+    if(!l_buf) {
+        fprintf(stderr, "malloc: %s\n", strerror(errno));
+        exit(-1);
+    }
+
+    memcpy(l_buf, m_buf, BUF_LENGTH);
+    dump_buf(l_buf, BUF_LENGTH);
+}
+
 static void usage(void)
 {
 	printf( "usage: app [--write | -w ] \n"
@@ -152,6 +198,9 @@ int main(int argc, char** argv)
                 break;
             case 'p': 
                 debug_ioctl_raw_read_data();
+                break;
+            case 'm': 
+                debug_mmap();
                 break;
             default:
                 usage();
