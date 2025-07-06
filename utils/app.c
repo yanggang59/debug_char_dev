@@ -39,7 +39,7 @@ static const struct option long_options[] = {
 	{ 0, 0, 0, 0 }
 };
 
-void dump_buf(char* buf, int len)
+void  dump_buf(char* buf, int len)
 {
   printf("**************************************************************************************\r\n");
   printf("     ");
