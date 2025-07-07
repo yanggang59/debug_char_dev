@@ -42,13 +42,21 @@ def read_data():
     print("[Info] filed2 = " + str(data_in.field2))
     fd.close()
 
-def dump_mem():
-    return
+def dump_mem(mem, len):
+    print("**************************************************************************************", end="\n")
+    print("     ")
+    for i in range(0, 16):
+        print("%4X " %(i))
+        for j in range(0, len):
+            if j % 16 == 0:
+                print("",end="\n")
+                print("%4X" %(j))
+            print("%4X" %(mem[j]))
 
 def mmap_test(length):
     fd = os.open("/dev/debug", os.O_RDWR | os.O_SYNC)
     mm = mmap.mmap(fd,  length, flags=mmap.MAP_SHARED, prot=mmap.PROT_WRITE|mmap.PROT_READ, access=mmap.ACCESS_DEFAULT)
-    print(mm[:10])
+    dump_mem(mm, 4096)
     mm.close
     os.close(fd) 
 
